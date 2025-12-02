@@ -15,7 +15,8 @@ import {
   Menu,
   X,
   Bell,
-  User
+  User,
+  BarChart3
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -86,6 +87,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'الرئيسية' },
+    { href: '/dashboard/reports', icon: BarChart3, label: 'التقارير' },
     { href: '/dashboard/categories', icon: FolderOpen, label: 'الأقسام' },
     { href: '/dashboard/items', icon: UtensilsCrossed, label: 'الأطباق' },
     { href: '/dashboard/orders', icon: ClipboardList, label: 'الطلبات' },
@@ -95,6 +97,7 @@ export default function DashboardLayout({
   const getPageTitle = () => {
     switch (pathname) {
       case '/dashboard': return 'الرئيسية';
+      case '/dashboard/reports': return 'التقارير';
       case '/dashboard/categories': return 'إدارة الأقسام';
       case '/dashboard/items': return 'إدارة الأطباق';
       case '/dashboard/orders': return 'إدارة الطلبات';

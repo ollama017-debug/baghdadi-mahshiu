@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { 
   ChefHat, 
@@ -24,25 +25,25 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    checkUser();
-  }, []);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session && pathname !== '/dashboard/login') {
+        router.push('/dashboard/login');
+      } else {
+        setUser(session?.user ?? null);
+      }
+      setLoading(false);
+    };
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session && pathname !== '/dashboard/login') {
-      router.push('/dashboard/login');
-    } else {
-      setUser(session?.user);
-    }
-    setLoading(false);
-  };
+    checkUser();
+  }, [pathname, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

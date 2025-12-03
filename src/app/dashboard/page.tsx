@@ -5,6 +5,20 @@ import { supabase } from '@/lib/supabase';
 import { FolderOpen, UtensilsCrossed, ClipboardList, TrendingUp, ArrowUpLeft, ChefHat } from 'lucide-react';
 import Link from 'next/link';
 
+interface Order {
+  id: number;
+  created_at: string;
+  table_number: number | null;
+  customer_name: string | null;
+  total_amount: number | null;
+  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+  items: {
+    menu_item: {
+      name_ar: string;
+    } | null;
+  }[] | null;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState({
     categories: 0,
@@ -12,7 +26,7 @@ export default function DashboardPage() {
     pendingOrders: 0,
     todayOrders: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -251,7 +265,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <div className="text-sm text-gray-500 mr-13 mb-2">
-                  {order.items?.map((item: any) => item.menu_item?.name_ar).join('، ') || 'لا توجد عناصر'}
+                  {order.items?.map((item) => item.menu_item?.name_ar).join('، ') || 'لا توجد عناصر'}
                 </div>
                 <div className="flex items-center justify-between text-sm mr-13">
                   <span className="text-gray-400">

@@ -30,8 +30,9 @@ export default function LoginPage() {
         router.refresh();
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.message === 'Invalid login credentials' 
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message === 'Invalid login credentials'
         ? 'بيانات الدخول غير صحيحة' 
         : 'حدث خطأ أثناء تسجيل الدخول');
     } finally {

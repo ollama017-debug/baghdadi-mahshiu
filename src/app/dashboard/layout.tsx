@@ -31,34 +31,18 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // التحقق من الجلسة الحالية
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session && pathname !== '/dashboard/login') {
-        router.push('/dashboard/login');
-      } else {
-        setUser(session?.user || null);
-      }
-      setLoading(false);
-    };
-
     checkUser();
+  }, []);
 
-    // الاستماع لتغييرات حالة المصادقة
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        setUser(session.user);
-        setLoading(false);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        if (pathname !== '/dashboard/login') {
-          router.push('/dashboard/login');
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [pathname, router]);
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session && pathname !== '/dashboard/login') {
+      router.push('/dashboard/login');
+    } else {
+      setUser(session?.user);
+    }
+    setLoading(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -87,21 +71,21 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'الرئيسية' },
-    { href: '/dashboard/reports', icon: BarChart3, label: 'التقارير' },
     { href: '/dashboard/categories', icon: FolderOpen, label: 'الأقسام' },
     { href: '/dashboard/items', icon: UtensilsCrossed, label: 'الأطباق' },
     { href: '/dashboard/orders', icon: ClipboardList, label: 'الطلبات' },
+    { href: '/dashboard/reports', icon: BarChart3, label: 'التقارير' },
     { href: '/dashboard/settings', icon: Settings, label: 'الإعدادات' },
   ];
 
   const getPageTitle = () => {
     switch (pathname) {
       case '/dashboard': return 'الرئيسية';
-      case '/dashboard/reports': return 'التقارير';
       case '/dashboard/categories': return 'إدارة الأقسام';
       case '/dashboard/items': return 'إدارة الأطباق';
       case '/dashboard/orders': return 'إدارة الطلبات';
       case '/dashboard/settings': return 'الإعدادات';
+      case '/dashboard/reports': return 'التقارير';
       default: return 'لوحة التحكم';
     }
   };

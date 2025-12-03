@@ -98,11 +98,13 @@ export default function ReportsPage() {
 
       const { data: orderItems } = await supabase
         .from('order_items')
-        .select(`
+        .select(
+          `
           *,
-          menu_item:menu_items(name_ar, category_id),
+          menu_item:menu_items(name_ar, category:categories(id, name_ar)),
           order:orders!inner(created_at)
-        `)
+        `
+        )
         .gte('order.created_at', start)
         .lte('order.created_at', end);
 
@@ -111,25 +113,18 @@ export default function ReportsPage() {
         const itemMap = new Map<string, { quantity: number; revenue: number; name: string }>();
 
         for (const item of orderItems) {
-          if (item.menu_item?.category_id) {
-            const { data: category } = await supabase
-              .from('categories')
-              .select('name_ar')
-              .eq('id', item.menu_item.category_id)
-              .single();
-
-            if (category) {
-              const existing = categoryMap.get(item.menu_item.category_id) || {
-                quantity: 0,
-                revenue: 0,
-                category_name: category.name_ar,
-              };
-              categoryMap.set(item.menu_item.category_id, {
-                quantity: existing.quantity + item.quantity,
-                revenue: existing.revenue + (item.unit_price * item.quantity),
-                category_name: category.name_ar,
-              });
-            }
+          if (item.menu_item?.category) {
+            const category = item.menu_item.category;
+            const existing = categoryMap.get(category.id) || {
+              quantity: 0,
+              revenue: 0,
+              category_name: category.name_ar,
+            };
+            categoryMap.set(category.id, {
+              quantity: existing.quantity + item.quantity,
+              revenue: existing.revenue + item.unit_price * item.quantity,
+              category_name: category.name_ar,
+            });
           }
 
           if (item.menu_item?.name_ar) {
@@ -140,7 +135,7 @@ export default function ReportsPage() {
             };
             itemMap.set(item.menu_item_id, {
               quantity: existing.quantity + item.quantity,
-              revenue: existing.revenue + (item.unit_price * item.quantity),
+              revenue: existing.revenue + item.unit_price * item.quantity,
               name: item.menu_item.name_ar,
             });
           }
